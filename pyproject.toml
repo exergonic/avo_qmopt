@@ -44,10 +44,20 @@ item = "Perform QM Geometry Optimization"
 menu-priorities = [100, 800]
 
 [[tool.avogadro.menu-commands]]
-identifier = "test"
+identifier = "config"
+input-format = "xyz"
+input-cjson = true
+user-options = "dynamic"
+menu = "Extensions"
+submenu = "QM Optimization"
+item = "Options…"
+menu-priorities = [100, 100]
+
+[[tool.avogadro.menu-commands]]
+identifier = "open"
 input-format = "xyz"
 input-cjson = true
 menu = "Extensions"
 submenu = "QM Optimization"
-item = "Test"
-menu-priorities = [100, 100]
+item = "Go to files ..."
+menu-priorities = [100, 600]

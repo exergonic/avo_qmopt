@@ -5,10 +5,13 @@ import sys
 import traceback
 from pathlib import Path
 
-# Make sure stdout stream is always Unicode, as Avogadro expects
 sys.stdout.reconfigure(encoding="utf-8")
 
+PLUGIN_DIR = Path(__file__).resolve().parent.parent.parent
+CALCS_DIR = PLUGIN_DIR / "calcs"
+
 logger = logging.getLogger(__name__)
+
 
 def main():
     logging.basicConfig(
@@ -36,35 +39,26 @@ def main():
 
     cjson = data.get("cjson", {})
     options = data.get("options", {})
-#    charge = data.get("charge", 0)
-#    spin = data.get("spin", 1)
+    charge = data.get("charge", 0)
+    spin = data.get("spin", 1)
 
     try:
-        if args.feature == "test":
-            result = {
-                "message": "Test Success!",
-                "moleculeFormat": "cjson",
-                "cjson": cjson,
-            }
-#       if args.feature == "config":
-#           from .config import get_config_options, update_config
-#           if args.user_options:
-#               result = {"userOptions": get_config_options()}
-#           else:
-#               result = update_config(data)
- #       elif args.feature == "ibo":
- #           from .calcs import compute_ibo
- #           from .config import load_config
- #           _cfg = load_config()
- #           charge = _cfg.get("charge", charge)
- #           spin = _cfg.get("mult", spin)
-
- #           result = compute_ibo(cjson, options, charge, spin, debug=args.debug)
- #       elif args.feature == "open":
- #           from .links import open_calcs_dir
-
- #           result = open_calcs_dir(cjson)
-
+        if args.feature == "config":
+            from .config import get_config_options, update_config
+            if args.user_options:
+                result = {"userOptions": get_config_options()}
+            else:
+                result = update_config(data)
+        elif args.feature == "qmopt":
+            from .calcs import optimize
+            from .config import load_config
+            _cfg = load_config()
+            charge = _cfg.get("charge", charge)
+            spin = _cfg.get("mult", spin)
+            result = optimize(cjson, options, charge, spin, debug=args.debug)
+        elif args.feature == "open":
+            from .links import open_calcs_dir
+            result = open_calcs_dir(cjson)
         else:
             result = {"error": f"Unknown feature: {args.feature}"}
     except Exception as e:
