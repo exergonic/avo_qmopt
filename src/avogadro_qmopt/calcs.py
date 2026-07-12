@@ -146,6 +146,50 @@ def optimize(cjson: dict, options: dict, charge: int, spin: int, debug: bool = F
         cjson["properties"]["totalCharge"] = charge_val
         cjson["properties"]["totalSpinMultiplicity"] = spin_val
 
+    imag_msg = ""
+    if _cfg.get("hess", False):
+        logger.debug("Running frequency calculation after optimization")
+        try:
+            freq_energy, wfn = psi4.frequency(method, molecule=mol, return_wfn=True)
+            fa = wfn.frequency_analysis
+
+            omega = fa["omega"].data
+            ir_raw = fa["IR_intensity"].data
+
+            freq_list = [round(f.real, 2) for f in omega]
+            ir_list = [round(float(i), 4) for i in ir_raw]
+
+            modes_list = list(range(1, len(freq_list) + 1))
+            eigen = []
+            try:
+                disp_mat = fa["x"].data
+                n_modes = disp_mat.shape[0]
+                for mi in range(n_modes):
+                    eigen.append([float(disp_mat[mi, k]) for k in range(n_atoms * 3)])
+            except Exception:
+                logger.debug("Normal mode eigenvectors not available from wavefunction")
+
+            cjson["vibrations"] = {
+                "frequencies": freq_list,
+                "modes": modes_list,
+                "intensities": ir_list,
+                "eigenVectors": eigen,
+            }
+
+            n_imag = sum(1 for f in freq_list if f < -5.0)
+            if n_imag > 0:
+                imag_msg = (
+                    f"\n{n_imag} imaginary frequency(-ies) found. "
+                    "This structure may not be a true minimum."
+                )
+            else:
+                imag_msg = "\nNo imaginary frequencies detected."
+
+            logger.debug(f"Frequency calculation complete ({len(freq_list)} modes, {n_imag} imaginary)")
+        except Exception as e:
+            logger.warning(f"Frequency calculation failed: {e}")
+            imag_msg = f"\nFrequency calculation failed: {e}"
+
     opt_xyz_lines = [f"{n_atoms}", f"{mol_name} (optimized)"]
     for i in range(n_atoms):
         sym = _get_elem_symbol(elem[i])
@@ -170,6 +214,8 @@ def optimize(cjson: dict, options: dict, charge: int, spin: int, debug: bool = F
             f"Final energy: {energy_str}\n"
             f"Partial results saved in: {calc_dir.name}/"
         )
+    if imag_msg:
+        message += imag_msg
 
     logger.debug("Optimization complete, returning result")
     return {

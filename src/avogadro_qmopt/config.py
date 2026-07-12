@@ -9,6 +9,7 @@ _DEFAULT_CONFIG = {
     "charge": 0,
     "mult": 1,
     "geom_maxiter": 100,
+    "hess": False,
 }
 
 METHODS = ["HF", "B3LYP", "PBE", "PBE0", "wB97X-D"]
@@ -86,6 +87,12 @@ def get_config_options():
             "default": config.get("geom_maxiter", 100),
             "order": 5.0,
         },
+        "hess": {
+            "type": "boolean",
+            "label": "Compute vibrational frequencies after optimization",
+            "default": config.get("hess", False),
+            "order": 6.0,
+        },
         "note": {
             "type": "text",
             "label": "Note",
@@ -110,7 +117,7 @@ def update_config(avo_input):
     options = avo_input.get("options", {})
     config = load_config()
     changed = False
-    for key in ("method", "basis", "charge", "mult", "geom_maxiter"):
+    for key in ("method", "basis", "charge", "mult", "geom_maxiter", "hess"):
         if key in options:
             config[key] = options[key]
             changed = True
