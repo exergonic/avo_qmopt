@@ -14,3 +14,12 @@ AGENTS.md
 
 # local markdown files
 _*.md
+
+# Psi4 artifacts
+timer.dat
+log.txt
+NUL.log
+psi.*
+
+# calcs/ runtime artifacts
+calcs/*
