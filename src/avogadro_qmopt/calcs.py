@@ -155,17 +155,19 @@ def optimize(cjson: dict, options: dict, charge: int, spin: int, debug: bool = F
 
             omega = fa["omega"].data
             ir_raw = fa["IR_intensity"].data
+            trv = fa["TRV"].data
 
-            freq_list = [round(f.real, 2) for f in omega]
-            ir_list = [round(float(i), 4) for i in ir_raw]
+            v_mask = [t == "V" and abs(f.real) > 5.0 for t, f in zip(trv, omega)]
+            freq_list = [round(omega[i].real, 2) for i, m in enumerate(v_mask) if m]
+            ir_list = [round(float(ir_raw[i]), 4) for i, m in enumerate(v_mask) if m]
 
             modes_list = list(range(1, len(freq_list) + 1))
             eigen = []
             try:
                 disp_mat = fa["x"].data
-                n_modes = disp_mat.shape[0]
-                for mi in range(n_modes):
-                    eigen.append([float(disp_mat[mi, k]) for k in range(n_atoms * 3)])
+                for i, m in enumerate(v_mask):
+                    if m:
+                        eigen.append([float(disp_mat[i, k]) for k in range(n_atoms * 3)])
             except Exception:
                 logger.debug("Normal mode eigenvectors not available from wavefunction")
 
