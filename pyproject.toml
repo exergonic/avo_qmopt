@@ -1,9 +1,15 @@
 [project]
-authors = [{ name = "Billy Wayne McCann", email = "thebillywayne@gmail.com" }]
-dependencies = []
-name = "avo_qmopt"
-requires-python = "~= 3.11"
+name = "avogadro-qmopt"
 version = "0.1.0"
+description = "Perform QM Geometry Optimizations in Avogadro"
+readme = "README.md"
+license = "BSD-3-Clause"
+authors = [
+    { name = "Billy Wayne McCann", email = "thebillywayne@gmail.com" }
+]
+requires-python = "~= 3.11"
+dependencies = [
+]
 
 [project.scripts]
 avogadro-ibo = "avogadro_qmopt:main"
@@ -36,3 +42,12 @@ menu = "Extensions"
 submenu = "QM Optimization"
 item = "Perform QM Geometry Optimization"
 menu-priorities = [100, 800]
+
+[[tool.avogadro.menu-commands]]
+identifier = "test"
+input-format = "xyz"
+input-cjson = true
+menu = "Extensions"
+submenu = "QM Optimization"
+item = "Test"
+menu-priorities = [100, 100]
