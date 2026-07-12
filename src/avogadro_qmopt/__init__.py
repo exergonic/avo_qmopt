@@ -40,8 +40,12 @@ def main():
 #    spin = data.get("spin", 1)
 
     try:
-        if args.feature == "Test":
-            result = { "message": "Test Success!" }
+        if args.feature == "test":
+            result = {
+                "message": "Test Success!",
+                "moleculeFormat": "cjson",
+                "cjson": cjson,
+            }
 #       if args.feature == "config":
 #           from .config import get_config_options, update_config
 #           if args.user_options:
