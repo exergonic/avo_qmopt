@@ -1,0 +1,16 @@
+# pixi environments
+.pixi/*
+!.pixi/config.toml
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Local development notes (LLM context, not for publishing)
+AGENTS.md
+
+# Editor/IDE files
+.vscode/
+
+# local markdown files
+_*.md
