@@ -1,0 +1,38 @@
+[project]
+authors = [{ name = "Billy Wayne McCann", email = "thebillywayne@gmail.com" }]
+dependencies = []
+name = "avo_qmopt"
+requires-python = "~= 3.11"
+version = "0.1.0"
+
+[project.scripts]
+avogadro-ibo = "avogadro_qmopt:main"
+
+[build-system]
+requires = ["uv_build>=0.10.2,<0.11.0"]
+build-backend = "uv_build"
+
+[tool.pixi.workspace]
+channels = ["conda-forge"]
+platforms = ["win-64"]
+
+[tool.pixi.dependencies]
+psi4 = ">=1.11,<2"
+pytest = ">=9.1.1,<10"
+ruff = ">=0.15.21,<0.16"
+
+[tool.pixi.tasks]
+test = { cmd = "pytest tests/ -v", depends-on = ["_install"] }
+_install = "python -m pip install -e ."
+
+[tool.avogadro]
+minimum-avogadro-version = "1.103"
+
+[[tool.avogadro.menu-commands]]
+identifier = "qmopt"
+input-format = "xyz"
+input-cjson = true
+menu = "Extensions"
+submenu = "QM Optimization"
+item = "Perform QM Geometry Optimization"
+menu-priorities = [100, 800]
