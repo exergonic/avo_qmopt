@@ -99,6 +99,7 @@ def optimize(cjson: dict, options: dict, charge: int, spin: int, debug: bool = F
         "scf_type": "df",
         "reference": reference,
         "geom_maxiter": geom_maxiter,
+        "g_convergence": "gau",
         "e_convergence": 1e-8,
         "d_convergence": 1e-8,
     })
@@ -109,17 +110,19 @@ def optimize(cjson: dict, options: dict, charge: int, spin: int, debug: bool = F
         final_energy = psi4.optimize(method, molecule=mol)
         converged = True
         logger.debug(f"Optimization converged. Final energy: {final_energy:.8f} Eh")
-    except Exception as e:
-        logger.warning(f"Optimization did not fully converge: {e}")
+    except psi4.OptimizationConvergenceError as e:
+        logger.warning(f"Optimization failed to converge: {e}")
         try:
             final_energy = psi4.variable("CURRENT ENERGY")
         except Exception:
             final_energy = None
-        if final_energy is None or final_energy == 0.0:
-            try:
-                final_energy = psi4.variable("OPTIMIZATION ENERGY")
-            except Exception:
-                pass
+            logger.debug("Could not retrieve partial energy")
+    except Exception as e:
+        logger.warning(f"Optimization error: {e}")
+        try:
+            final_energy = psi4.variable("CURRENT ENERGY")
+        except Exception:
+            final_energy = None
 
     try:
         geom = mol.geometry()
