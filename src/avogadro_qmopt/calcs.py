@@ -83,7 +83,7 @@ def optimize(cjson: dict, options: dict, charge: int, spin: int, debug: bool = F
     for h in psi4_logger.handlers[:]:
         psi4_logger.removeHandler(h)
     psi4_logger.addHandler(logging.FileHandler(str(calc_dir / "psi4.log"), encoding="utf-8"))
-    psi4_logger.setLevel(logging.WARNING)
+    psi4_logger.setLevel(logging.INFO)
 
     from .config import load_config
     _cfg = load_config()
