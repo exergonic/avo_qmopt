@@ -62,7 +62,9 @@ def main():
         result = {"error": "".join(traceback.format_exception(e, limit=limit))}
         logger.exception("Unhandled exception")
 
-    print(json.dumps(result))
+    sys.stdout.flush()
+    print(json.dumps(result), flush=True)
+    sys.stdout.flush()
 
 
 if __name__ == "__main__":
