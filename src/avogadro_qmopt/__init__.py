@@ -51,10 +51,6 @@ def main():
                 result = update_config(data)
         elif args.feature == "qmopt":
             from .calcs import optimize
-            from .config import load_config
-            _cfg = load_config()
-            charge = _cfg.get("charge", charge)
-            spin = _cfg.get("mult", spin)
             result = optimize(cjson, options, charge, spin, debug=args.debug)
         elif args.feature == "open":
             from .links import open_calcs_dir

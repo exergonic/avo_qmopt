@@ -6,8 +6,6 @@ CONFIG_PATH = CALCS_DIR / "config.json"
 _DEFAULT_CONFIG = {
     "method": "wB97X-D",
     "basis": "def2-TZVP",
-    "charge": 0,
-    "mult": 1,
     "geom_maxiter": 100,
     "hess": False,
 }
@@ -63,35 +61,19 @@ def get_config_options():
             else BASIS_SETS.index("def2-TZVP"),
             "order": 2.0,
         },
-        "charge": {
-            "type": "integer",
-            "label": "Charge",
-            "minimum": -10,
-            "maximum": 10,
-            "default": config.get("charge", 0),
-            "order": 3.0,
-        },
-        "mult": {
-            "type": "integer",
-            "label": "Spin Multiplicity",
-            "minimum": 1,
-            "maximum": 7,
-            "default": config.get("mult", 1),
-            "order": 4.0,
-        },
         "geom_maxiter": {
             "type": "integer",
             "label": "Max Optimization Cycles",
             "minimum": 1,
             "maximum": 500,
             "default": config.get("geom_maxiter", 100),
-            "order": 5.0,
+            "order": 3.0,
         },
         "hess": {
             "type": "boolean",
             "label": "Compute vibrational frequencies after optimization",
             "default": config.get("hess", False),
-            "order": 6.0,
+            "order": 4.0,
         },
         "note": {
             "type": "text",
@@ -117,7 +99,7 @@ def update_config(avo_input):
     options = avo_input.get("options", {})
     config = load_config()
     changed = False
-    for key in ("method", "basis", "charge", "mult", "geom_maxiter", "hess"):
+    for key in ("method", "basis", "geom_maxiter", "hess"):
         if key in options:
             config[key] = options[key]
             changed = True
