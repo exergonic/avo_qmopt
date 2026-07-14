@@ -109,8 +109,7 @@ def optimize(cjson: dict, options: dict, charge: int, spin: int, debug: bool = F
     converged = False
     final_energy = None
     try:
-        with redirect_stdout(log_handle):
-            final_energy = psi4.optimize(method, molecule=mol, engine='geometric')
+        final_energy = psi4.optimize(method, molecule=mol, engine='geometric')
         converged = True
         logger.debug(f"Optimization converged. Final energy: {final_energy:.8f} Eh")
     except psi4.OptimizationConvergenceError as e:
