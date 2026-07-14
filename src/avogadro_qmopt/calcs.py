@@ -92,7 +92,6 @@ def optimize(cjson: dict, options: dict, charge: int, spin: int, debug: bool = F
     _cfg = load_config()
     method = _option(options, "method", _cfg.get("method", "wB97X-D"))
     basis = _option(options, "basis", _cfg.get("basis", "def2-TZVP"))
-    geom_maxiter = _option(options, "geom_maxiter", _cfg.get("geom_maxiter", 100))
 
     reference = "uhf" if (charge_val != 0 or spin_val != 1) else "rhf"
     logger.debug(f"Method: {method}, Basis: {basis}, Reference: {reference}")
@@ -110,7 +109,8 @@ def optimize(cjson: dict, options: dict, charge: int, spin: int, debug: bool = F
     converged = False
     final_energy = None
     try:
-        final_energy = psi4.optimize(method, molecule=mol, engine='geometric')
+        with redirect_stdout(log_handle):
+            final_energy = psi4.optimize(method, molecule=mol, engine='geometric')
         converged = True
         logger.debug(f"Optimization converged. Final energy: {final_energy:.8f} Eh")
     except psi4.OptimizationConvergenceError as e:
