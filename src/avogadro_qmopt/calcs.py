@@ -78,6 +78,7 @@ def optimize(cjson: dict, options: dict, charge: int, spin: int, debug: bool = F
     mol.reset_point_group("c1")
     logger.debug(f"Psi4 molecule created (charge={charge_val}, mult={spin_val})")
 
+    psi4.set_memory("2 GB")
     psi4.set_output_file(str(calc_dir / "psi4.log"))
     psi4_logger = logging.getLogger("psi4")
     for h in psi4_logger.handlers[:]:
@@ -161,12 +162,14 @@ def optimize(cjson: dict, options: dict, charge: int, spin: int, debug: bool = F
             ir_raw = fa["IR_intensity"].data
             disp_mat = fa["x"].data
 
-            n_tr = sum(1 for f in omega if abs(f.real) < 5.0)
+            n_tr = sum(1 for f in omega if abs(f) < 5.0)
             n_vib = len(omega) - n_tr
-            idx_by_freq = sorted(range(len(omega)), key=lambda i: omega[i].real, reverse=True)
-            keep = sorted(idx_by_freq[:n_vib])
+            idx_by_mag = sorted(range(len(omega)), key=lambda i: abs(omega[i]), reverse=True)
+            keep = sorted(idx_by_mag[:n_vib])
 
-            freq_list = [round(omega[i].real, 2) for i in keep]
+            def _freq_val(f):
+                return -abs(f.imag) if abs(f.imag) > abs(f.real) else f.real
+            freq_list = [round(_freq_val(omega[i]), 2) for i in keep]
             ir_list = [round(float(ir_raw[i]), 4) for i in keep]
 
             modes_list = list(range(1, len(freq_list) + 1))
