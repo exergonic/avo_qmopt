@@ -189,9 +189,10 @@ def optimize(cjson: dict, options: dict, charge: int, spin: int, debug: bool = F
 
             n_imag = sum(1 for f in freq_list if f < -5.0)
             if n_imag > 0:
+                label = "frequency" if n_imag == 1 else "frequencies"
                 imag_msg = (
-                    f"\n{n_imag} imaginary frequency(-ies) found. "
-                    "This structure may not be a true minimum."
+                    f"\n{n_imag} imaginary {label} found. "
+                    "This structure may not be a true minimum on the potential energy surface."
                 )
             else:
                 imag_msg = "\nNo imaginary frequencies detected."
