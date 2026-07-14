@@ -101,8 +101,6 @@ def optimize(cjson: dict, options: dict, charge: int, spin: int, debug: bool = F
         "basis": basis,
         "scf_type": "df",
         "reference": reference,
-        "geom_maxiter": geom_maxiter,
-        "g_convergence": "gau",
         "e_convergence": 1e-8,
         "d_convergence": 1e-8,
     })
@@ -112,8 +110,7 @@ def optimize(cjson: dict, options: dict, charge: int, spin: int, debug: bool = F
     converged = False
     final_energy = None
     try:
-        with redirect_stdout(log_handle):
-            final_energy = psi4.optimize(method, molecule=mol)
+        final_energy = psi4.optimize(method, molecule=mol, engine='geometric')
         converged = True
         logger.debug(f"Optimization converged. Final energy: {final_energy:.8f} Eh")
     except psi4.OptimizationConvergenceError as e:
@@ -131,8 +128,7 @@ def optimize(cjson: dict, options: dict, charge: int, spin: int, debug: bool = F
             final_energy = None
 
     try:
-        with redirect_stdout(log_handle):
-            geom = mol.geometry()
+        geom = mol.geometry()
         n = geom.shape[0]
         optimized = []
         for i in range(n):
