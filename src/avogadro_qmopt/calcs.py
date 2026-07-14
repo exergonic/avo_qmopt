@@ -1,5 +1,6 @@
 import logging
 import re
+from contextlib import redirect_stdout
 
 import psi4
 
@@ -78,7 +79,7 @@ def optimize(cjson: dict, options: dict, charge: int, spin: int, debug: bool = F
     mol.reset_point_group("c1")
     logger.debug(f"Psi4 molecule created (charge={charge_val}, mult={spin_val})")
 
-    psi4.set_memory("2 GB")
+    psi4.set_memory("2 GB", quiet=True)
     psi4.set_output_file(str(calc_dir / "psi4.log"))
     psi4_logger = logging.getLogger("psi4")
     for h in psi4_logger.handlers[:]:
@@ -106,10 +107,13 @@ def optimize(cjson: dict, options: dict, charge: int, spin: int, debug: bool = F
         "d_convergence": 1e-8,
     })
 
+    log_handle = open(calc_dir / "psi4.log", "a", encoding="utf-8")
+
     converged = False
     final_energy = None
     try:
-        final_energy = psi4.optimize(method, molecule=mol)
+        with redirect_stdout(log_handle):
+            final_energy = psi4.optimize(method, molecule=mol)
         converged = True
         logger.debug(f"Optimization converged. Final energy: {final_energy:.8f} Eh")
     except psi4.OptimizationConvergenceError as e:
@@ -127,7 +131,8 @@ def optimize(cjson: dict, options: dict, charge: int, spin: int, debug: bool = F
             final_energy = None
 
     try:
-        geom = mol.geometry()
+        with redirect_stdout(log_handle):
+            geom = mol.geometry()
         n = geom.shape[0]
         optimized = []
         for i in range(n):
@@ -155,7 +160,8 @@ def optimize(cjson: dict, options: dict, charge: int, spin: int, debug: bool = F
     if _cfg.get("hess", False):
         logger.debug("Running frequency calculation after optimization")
         try:
-            freq_energy, wfn = psi4.frequency(method, molecule=mol, return_wfn=True)
+            with redirect_stdout(log_handle):
+                freq_energy, wfn = psi4.frequency(method, molecule=mol, return_wfn=True)
             fa = wfn.frequency_analysis
 
             omega = fa["omega"].data
@@ -229,6 +235,7 @@ def optimize(cjson: dict, options: dict, charge: int, spin: int, debug: bool = F
     if imag_msg:
         message += imag_msg
 
+    log_handle.close()
     logger.debug("Optimization complete, returning result")
     return {
         "moleculeFormat": "cjson",
