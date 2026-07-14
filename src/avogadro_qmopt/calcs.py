@@ -208,16 +208,15 @@ def optimize(cjson: dict, options: dict, charge: int, spin: int, debug: bool = F
             logger.warning(f"Frequency calculation failed: {e}")
             imag_msg = f"\nFrequency calculation failed: {e}"
 
-    opt_xyz_lines = [f"{n_atoms}", f"{mol_name} (optimized)"]
+    energy_str = f"{final_energy:.8f} Eh" if final_energy is not None else "N/A"
+    method_str = f"{method}/{basis}"
+    opt_xyz_lines = [f"{n_atoms}", f"{mol_name}  |  {method_str}  |  {energy_str}"]
     for i in range(n_atoms):
         sym = _get_elem_symbol(elem[i])
         opt_xyz_lines.append(
             f"{sym:3s}  {optimized[3 * i]:12.8f}  {optimized[3 * i + 1]:12.8f}  {optimized[3 * i + 2]:12.8f}"
         )
     (calc_dir / "optimized.xyz").write_text("\n".join(opt_xyz_lines) + "\n", encoding="utf-8")
-
-    energy_str = f"{final_energy:.8f} Eh" if final_energy is not None else "N/A"
-    method_str = f"{method}/{basis}"
     if converged:
         message = (
             f"Geometry optimization converged.\n"
